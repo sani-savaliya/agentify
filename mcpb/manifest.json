@@ -31,6 +31,12 @@
       }
     }
   },
+  "tools": [
+    {
+      "name": "{operationId}",
+      "description": "One tool is generated per operation in your OpenAPI spec, named by its operationId (or method_path when absent). Example: a Petstore spec yields 19 tools like getPetById, addPet, findPetsByStatus. Arguments mirror the operation's path/query/header parameters, plus 'body' for the request body. Responses return the live HTTP status and body."
+    }
+  ],
   "tools_generated": true,
   "compatibility": {
     "platforms": ["darwin", "win32", "linux"],
