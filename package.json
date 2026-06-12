@@ -1,0 +1,47 @@
+{
+  "name": "agentify-openapi",
+  "version": "0.1.0",
+  "description": "Turn any OpenAPI/Swagger spec into an agent-ready MCP server. Point it at a spec and every operation becomes a tool an agent can call.",
+  "type": "module",
+  "bin": {
+    "agentify": "dist/cli.js"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/cli.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "coverage": "vitest run --coverage",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "mcp",
+    "openapi",
+    "swagger",
+    "ai-agents",
+    "model-context-protocol",
+    "tools",
+    "llm"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@apidevtools/swagger-parser": "^10.1.1",
+    "@modelcontextprotocol/sdk": "^1.12.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "@vitest/coverage-v8": "^2.1.8",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}
