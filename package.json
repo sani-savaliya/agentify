@@ -33,6 +33,14 @@
     "llm"
   ],
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sani-savaliya/agentify.git"
+  },
+  "homepage": "https://github.com/sani-savaliya/agentify#readme",
+  "bugs": {
+    "url": "https://github.com/sani-savaliya/agentify/issues"
+  },
   "dependencies": {
     "@apidevtools/swagger-parser": "^10.1.1",
     "@modelcontextprotocol/sdk": "^1.12.0"
