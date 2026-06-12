@@ -4,3 +4,6 @@ coverage/
 *.log
 .env
 .DS_Store
+mcpb/node_modules/
+mcpb/package-lock.json
+*.mcpb

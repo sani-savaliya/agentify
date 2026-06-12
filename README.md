@@ -2,6 +2,9 @@
 
 **Turn any OpenAPI / Swagger spec into an agent-ready MCP server.**
 
+[![npm](https://img.shields.io/npm/v/agentify-openapi)](https://www.npmjs.com/package/agentify-openapi)
+Listed on the [official MCP Registry](https://registry.modelcontextprotocol.io/v0.1/servers?search=io.github.sani-savaliya/agentify) (`io.github.sani-savaliya/agentify`) and [Smithery](https://smithery.ai/servers/sanisavaliya12/agentify).
+
 Point it at a spec — a URL, a file, OpenAPI 3.x or Swagger 2.0 — and every operation
 becomes a tool an AI agent can call. No code generation, no per-API boilerplate, no
 hosting. One command.

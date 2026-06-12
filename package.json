@@ -1,6 +1,7 @@
 {
   "name": "agentify-openapi",
-  "version": "0.1.0",
+  "version": "0.1.1",
+  "mcpName": "io.github.sani-savaliya/agentify",
   "description": "Turn any OpenAPI/Swagger spec into an agent-ready MCP server. Point it at a spec and every operation becomes a tool an agent can call.",
   "type": "module",
   "bin": {

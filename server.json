@@ -1,0 +1,75 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.sani-savaliya/agentify",
+  "description": "Turn any OpenAPI/Swagger spec into an MCP server - every API operation becomes an agent tool.",
+  "repository": {
+    "url": "https://github.com/sani-savaliya/agentify",
+    "source": "github"
+  },
+  "version": "0.1.1",
+  "packages": [
+    {
+      "registryType": "npm",
+      "registryBaseUrl": "https://registry.npmjs.org",
+      "identifier": "agentify-openapi",
+      "version": "0.1.1",
+      "runtimeHint": "npx",
+      "transport": {
+        "type": "stdio"
+      },
+      "packageArguments": [
+        {
+          "type": "positional",
+          "valueHint": "openapi_spec_url",
+          "description": "URL or file path of the OpenAPI/Swagger spec (3.x or 2.0, JSON or YAML). Every operation becomes an MCP tool.",
+          "format": "string",
+          "isRequired": true
+        }
+      ],
+      "environmentVariables": [
+        {
+          "name": "AGENTIFY_BEARER_TOKEN",
+          "description": "Optional. Sent to the upstream API as 'Authorization: Bearer <token>'.",
+          "isRequired": false,
+          "isSecret": true,
+          "format": "string"
+        },
+        {
+          "name": "AGENTIFY_API_KEY",
+          "description": "Optional API key for the upstream API. Sent as a header (name auto-discovered from the spec's security schemes, default X-API-Key).",
+          "isRequired": false,
+          "isSecret": true,
+          "format": "string"
+        },
+        {
+          "name": "AGENTIFY_API_KEY_HEADER",
+          "description": "Optional. Override the header name used for AGENTIFY_API_KEY.",
+          "isRequired": false,
+          "isSecret": false,
+          "format": "string"
+        },
+        {
+          "name": "AGENTIFY_API_KEY_QUERY",
+          "description": "Optional. Send AGENTIFY_API_KEY as this query parameter instead of a header.",
+          "isRequired": false,
+          "isSecret": false,
+          "format": "string"
+        },
+        {
+          "name": "AGENTIFY_BASIC_USER",
+          "description": "Optional HTTP basic auth username (pair with AGENTIFY_BASIC_PASS).",
+          "isRequired": false,
+          "isSecret": false,
+          "format": "string"
+        },
+        {
+          "name": "AGENTIFY_BASIC_PASS",
+          "description": "Optional HTTP basic auth password (pair with AGENTIFY_BASIC_USER).",
+          "isRequired": false,
+          "isSecret": true,
+          "format": "string"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,65 @@
+{
+  "manifest_version": "0.3",
+  "name": "agentify-openapi",
+  "display_name": "Agentify OpenAPI",
+  "version": "0.1.1",
+  "description": "Turn any OpenAPI/Swagger spec into an agent-ready MCP server. Point it at a spec and every operation becomes a tool an agent can call.",
+  "author": {
+    "name": "Sani Savaliya",
+    "url": "https://github.com/sani-savaliya"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sani-savaliya/agentify.git"
+  },
+  "homepage": "https://github.com/sani-savaliya/agentify#readme",
+  "support": "https://github.com/sani-savaliya/agentify/issues",
+  "license": "MIT",
+  "keywords": ["mcp", "openapi", "swagger", "ai-agents", "model-context-protocol", "tools"],
+  "server": {
+    "type": "node",
+    "entry_point": "node_modules/agentify-openapi/dist/cli.js",
+    "mcp_config": {
+      "command": "node",
+      "args": [
+        "${__dirname}/node_modules/agentify-openapi/dist/cli.js",
+        "${user_config.openapi_spec_url}"
+      ],
+      "env": {
+        "AGENTIFY_BEARER_TOKEN": "${user_config.bearer_token}",
+        "AGENTIFY_API_KEY": "${user_config.api_key}"
+      }
+    }
+  },
+  "tools_generated": true,
+  "compatibility": {
+    "platforms": ["darwin", "win32", "linux"],
+    "runtimes": {
+      "node": ">=18.0.0"
+    }
+  },
+  "user_config": {
+    "openapi_spec_url": {
+      "type": "string",
+      "title": "OpenAPI Spec URL",
+      "description": "URL of the OpenAPI/Swagger spec (3.x or 2.0, JSON or YAML). Every operation in the spec becomes an MCP tool.",
+      "required": true
+    },
+    "bearer_token": {
+      "type": "string",
+      "title": "Bearer Token (optional)",
+      "description": "Sent to the upstream API as 'Authorization: Bearer <token>'. Leave blank if the API is public.",
+      "sensitive": true,
+      "required": false,
+      "default": ""
+    },
+    "api_key": {
+      "type": "string",
+      "title": "API Key (optional)",
+      "description": "Sent to the upstream API as an API key header (name auto-discovered from the spec, default X-API-Key). Leave blank if not needed.",
+      "sensitive": true,
+      "required": false,
+      "default": ""
+    }
+  }
+}
