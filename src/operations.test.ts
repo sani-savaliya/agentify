@@ -45,6 +45,22 @@ describe("extractOperations", () => {
     expect(tools.map((t) => t.name).sort()).toEqual(["getPet", "get_pets", "updatePet"]);
   });
 
+  it("captures operation tags (coercing non-string entries) and defaults to []", async () => {
+    const spec = await loadSpec({
+      openapi: "3.0.0",
+      info: { title: "T", version: "1" },
+      paths: {
+        "/tagged": { get: { operationId: "tagged", tags: ["pets", 123], responses: {} } },
+        "/untagged": { get: { operationId: "untagged", responses: {} } }
+      }
+    });
+    const tools = extractOperations(spec);
+    const tagged = tools.find((t) => t.name === "tagged")!;
+    const untagged = tools.find((t) => t.name === "untagged")!;
+    expect(tagged.operation.tags).toEqual(["pets", "123"]);
+    expect(untagged.operation.tags).toEqual([]);
+  });
+
   it("merges path-level parameters into each operation", async () => {
     const spec = await loadSpec(structuredClone(openapi3));
     const getPet = extractOperations(spec).find((t) => t.name === "getPet")!;

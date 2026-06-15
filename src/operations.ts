@@ -120,11 +120,14 @@ export function extractOperations(spec: any): ToolDef[] {
 
       const requestBody = normalizeRequestBody(op);
 
+      const tags = Array.isArray(op.tags) ? op.tags.map(String) : [];
+
       const operation: OperationInfo = {
         method: method.toUpperCase(),
         path,
         parameters,
-        requestBody
+        requestBody,
+        tags
       };
 
       tools.push({

@@ -29,6 +29,20 @@ console.log(`[smoke] isError: ${callResult.isError === true}`);
 
 await client.close();
 
+// Tool filtering: --tag must narrow the exposed tool set.
+const filtered = new StdioClientTransport({
+  command: process.execPath,
+  args: ["dist/cli.js", SPEC, "--tag", "store"]
+});
+const fclient = new Client({ name: "smoke-filter", version: "0.0.0" });
+await fclient.connect(filtered);
+const { tools: storeTools } = await fclient.listTools();
+await fclient.close();
+if (storeTools.length === 0 || storeTools.length >= tools.length) {
+  throw new Error(`[smoke] --tag store did not filter (got ${storeTools.length} of ${tools.length})`);
+}
+console.log(`[smoke] --tag store narrowed ${tools.length} → ${storeTools.length} tools`);
+
 // Regression: a bad/unreachable spec URL must exit promptly (non-zero), not
 // hang on a lingering HTTP keep-alive handle.
 import { spawn } from "node:child_process";

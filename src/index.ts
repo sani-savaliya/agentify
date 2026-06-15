@@ -6,6 +6,8 @@ export { buildRequest } from "./request.js";
 export { executeRequest } from "./execute.js";
 export type { ExecuteResult, FetchLike } from "./execute.js";
 export { resolveAuth, discoverApiKeyHeader, parseHeaderArg } from "./auth.js";
+export { filterTools } from "./filter.js";
+export type { FilterOptions, FilterResult } from "./filter.js";
 export { createServer, startStdioServer } from "./server.js";
 export type { ServerConfig } from "./server.js";
 export type * from "./types.js";

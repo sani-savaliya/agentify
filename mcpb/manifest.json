@@ -2,7 +2,7 @@
   "manifest_version": "0.3",
   "name": "agentify-openapi",
   "display_name": "Agentify OpenAPI",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "Turn any OpenAPI/Swagger spec into an agent-ready MCP server. Point it at a spec and every operation becomes a tool an agent can call.",
   "author": {
     "name": "Sani Savaliya",

@@ -35,9 +35,11 @@ There are tens of thousands of APIs that already describe themselves with an Ope
 document. `agentify` makes every one of them agent-native, instantly, without anyone
 hand-writing an integration.
 
-## Use it with Claude / any MCP client
+## Use it with Claude, Cursor, Windsurf — any MCP client
 
-Add to your MCP client config (e.g. Claude Desktop / Claude Code):
+Add it to your client's MCP config. The same `command`/`args` shape works in
+**Claude Desktop**, **Claude Code** (`claude mcp add`), **Cursor**
+(`.cursor/mcp.json`), **Windsurf**, **Cline**, and anything else that speaks MCP:
 
 ```json
 {
@@ -52,6 +54,36 @@ Add to your MCP client config (e.g. Claude Desktop / Claude Code):
 
 The agent now has one tool per API operation. Calling a tool builds the HTTP request
 (path params, query string, headers, JSON body) and returns the live response.
+
+## Big API? Pick just the tools you need
+
+Pointing at GitHub (1000+ operations) or Stripe (400+) would flood your agent with
+hundreds of tools and wreck its tool-selection accuracy. Filter down to what matters —
+by tag, HTTP method, or name glob — and cap the total:
+
+```bash
+# GitHub, read-only, just the repo endpoints
+npx agentify-openapi https://api.github.com/openapi.json --tag repos --read-only
+
+# Stripe customer endpoints only, hard cap at 25 tools
+npx agentify-openapi ./stripe.json --include "*Customer*" --max-tools 25
+```
+
+```json
+{
+  "mcpServers": {
+    "github-repos": {
+      "command": "npx",
+      "args": ["-y", "agentify-openapi", "https://api.github.com/openapi.json",
+               "--tag", "repos", "--read-only", "--max-tools", "30"],
+      "env": { "AGENTIFY_BEARER_TOKEN": "ghp_your_token" }
+    }
+  }
+}
+```
+
+`--read-only` (GET/HEAD/OPTIONS) is also a simple safety rail — expose a giant API to
+an agent without exposing anything that can mutate state.
 
 ## Auth
 
@@ -78,6 +110,15 @@ agentify <spec-url-or-file> [options]
   --name <name>        Override the MCP server name
   --list               Print the discovered tools and exit (no server)
   -h, --help           Show help
+
+  Tool selection (keep big APIs from flooding the agent's context):
+  --tag <tag>          Keep only operations with this tag (repeatable)
+  --exclude-tag <tag>  Drop operations with this tag (repeatable)
+  --method <verb>      Keep only this HTTP method, e.g. GET (repeatable)
+  --read-only          Shorthand: keep only GET/HEAD/OPTIONS operations
+  --include <glob>     Keep only tools matching this glob (repeatable)
+  --exclude <glob>     Drop tools matching this glob (repeatable)
+  --max-tools <n>      Hard cap on tool count (warns when it truncates)
 ```
 
 ## How it works
@@ -106,7 +147,7 @@ const baseUrl = resolveBaseUrl(spec);
 // ...build your own MCP server, or just inspect the generated tool defs
 ```
 
-## Limitations (v0.1)
+## Limitations
 
 - JSON request/response bodies are first-class; `multipart`/form bodies are passed
   through best-effort.

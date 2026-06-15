@@ -33,6 +33,7 @@ export interface OperationInfo {
   path: string; // template, e.g. /pets/{petId}
   parameters: ParamInfo[];
   requestBody?: RequestBodyInfo;
+  tags?: string[]; // OpenAPI operation tags
 }
 
 /** A single MCP tool derived from one OpenAPI operation. */

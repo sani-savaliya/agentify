@@ -1,18 +1,11 @@
 #!/usr/bin/env node
 import { loadSpec, resolveBaseUrl } from "./spec.js";
 import { extractOperations } from "./operations.js";
-import { parseHeaderArg, resolveAuth } from "./auth.js";
+import { resolveAuth } from "./auth.js";
+import { filterTools } from "./filter.js";
+import { parseArgs } from "./args.js";
 import { startStdioServer } from "./server.js";
 import type { ToolDef } from "./types.js";
-
-interface CliArgs {
-  source?: string;
-  baseUrl?: string;
-  headers: Record<string, string>;
-  name?: string;
-  list: boolean;
-  help: boolean;
-}
 
 const USAGE = `agentify — turn any OpenAPI/Swagger spec into an MCP server.
 
@@ -26,6 +19,16 @@ Options:
   --list               Print the discovered tools and exit (no server)
   -h, --help           Show this help
 
+Tool selection (keep big APIs from flooding the agent's context):
+  --tag <tag>          Keep only operations with this tag (repeatable)
+  --exclude-tag <tag>  Drop operations with this tag (repeatable)
+  --method <verb>      Keep only this HTTP method, e.g. GET (repeatable)
+  --read-only          Shorthand: keep only GET/HEAD/OPTIONS operations
+  --include <glob>     Keep only tools matching this glob (repeatable)
+  --exclude <glob>     Drop tools matching this glob (repeatable)
+  --max-tools <n>      Hard cap on tool count (warns when it truncates)
+                       Globs match the operationId or "METHOD /path".
+
 Auth (via environment variables):
   AGENTIFY_BEARER_TOKEN          Authorization: Bearer <token>
   AGENTIFY_BASIC_USER / _PASS    HTTP basic auth
@@ -35,46 +38,19 @@ Auth (via environment variables):
 
 Examples:
   agentify https://petstore3.swagger.io/api/v3/openapi.json --list
+  agentify https://api.github.com/openapi.json --tag repos --read-only
+  agentify ./stripe.json --include "*Customer*" --max-tools 25
   AGENTIFY_BEARER_TOKEN=xyz agentify ./openapi.yaml
 `;
 
-export function parseArgs(argv: string[]): CliArgs {
-  const args: CliArgs = { headers: {}, list: false, help: false };
-  for (let i = 0; i < argv.length; i++) {
-    const arg = argv[i];
-    switch (arg) {
-      case "-h":
-      case "--help":
-        args.help = true;
-        break;
-      case "--list":
-        args.list = true;
-        break;
-      case "--base-url":
-        args.baseUrl = argv[++i];
-        break;
-      case "--name":
-        args.name = argv[++i];
-        break;
-      case "--header": {
-        const parsed = parseHeaderArg(argv[++i] ?? "");
-        if (parsed) args.headers[parsed[0]] = parsed[1];
-        break;
-      }
-      default:
-        if (!arg.startsWith("-") && args.source === undefined) args.source = arg;
-    }
-  }
-  return args;
-}
-
-function printList(title: string, baseUrl: string, tools: ToolDef[]): void {
+function printList(title: string, baseUrl: string, tools: ToolDef[], dropped: number): void {
   console.log(`${title}`);
   console.log(`Base URL: ${baseUrl || "(none)"}`);
-  console.log(`Tools: ${tools.length}\n`);
+  console.log(`Tools: ${tools.length}${dropped > 0 ? ` (${dropped} filtered out)` : ""}\n`);
   for (const tool of tools) {
     const firstLine = tool.description.split("\n")[0];
-    console.log(`  ${tool.name}`);
+    const tags = tool.operation.tags?.length ? `  [${tool.operation.tags.join(", ")}]` : "";
+    console.log(`  ${tool.name}${tags}`);
     console.log(`    ${firstLine}`);
   }
 }
@@ -88,13 +64,22 @@ export async function run(argv: string[]): Promise<number> {
   }
 
   const spec = await loadSpec(args.source);
-  const tools = extractOperations(spec);
+  const allTools = extractOperations(spec);
+  const { tools, dropped, truncated, capDropped } = filterTools(allTools, args.filter);
   const baseUrl = resolveBaseUrl(spec, args.baseUrl);
   const title = `${spec?.info?.title ?? "API"} v${spec?.info?.version ?? "0.0.0"}`;
   const name = args.name ?? spec?.info?.title ?? "agentify";
 
+  if (truncated) {
+    const matched = tools.length + capDropped;
+    console.error(
+      `agentify: --max-tools=${args.filter.maxTools} kept the first ${tools.length} of ${matched} matching operations ` +
+        `(${capDropped} dropped by the cap). Narrow with --tag/--include/--method to choose which tools to keep.`
+    );
+  }
+
   if (args.list) {
-    printList(title, baseUrl, tools);
+    printList(title, baseUrl, tools, dropped);
     return 0;
   }
 
