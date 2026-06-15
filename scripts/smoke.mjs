@@ -28,4 +28,18 @@ console.log(text.split("\n").slice(0, 3).join("\n"));
 console.log(`[smoke] isError: ${callResult.isError === true}`);
 
 await client.close();
+
+// Regression: a bad/unreachable spec URL must exit promptly (non-zero), not
+// hang on a lingering HTTP keep-alive handle.
+import { spawn } from "node:child_process";
+const badUrlExit = await new Promise((resolve) => {
+  const child = spawn(process.execPath, ["dist/cli.js", "https://nope.invalid/openapi.json", "--list"], { stdio: "ignore" });
+  const timer = setTimeout(() => { child.kill(); resolve("HANG"); }, 10_000);
+  child.on("exit", (code) => { clearTimeout(timer); resolve(code); });
+});
+if (badUrlExit === "HANG" || badUrlExit === 0) {
+  throw new Error(`[smoke] bad-URL did not exit cleanly (got ${badUrlExit}) — regression of the hang bug`);
+}
+console.log(`[smoke] bad-URL exits promptly with code ${badUrlExit}`);
+
 console.log("[smoke] OK");

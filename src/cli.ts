@@ -110,5 +110,8 @@ run(process.argv.slice(2))
   })
   .catch((err) => {
     console.error(`agentify: ${err instanceof Error ? err.message : String(err)}`);
-    process.exitCode = 1;
+    // Force exit: a failed spec fetch can leave an open HTTP keep-alive handle
+    // that otherwise keeps the process alive (hangs) instead of exiting. No
+    // server is running on the error path, so exiting immediately is safe.
+    process.exit(1);
   });
